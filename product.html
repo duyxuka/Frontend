@@ -183,11 +183,10 @@
     <script>
         const API_URL = "http://localhost:22658/api/Product";
         const API_URL_cate = "http://localhost:22658/api/CategoryProduct";
-        let currentPage = 1;  // Trang hiện tại
-        let pageSize = 10;    // Số sản phẩm mỗi trang
-        let totalPages = 0;   // Tổng số trang (cập nhật từ API)
-        let isSearching = false;  // Biến xác định có đang tìm kiếm hay không
-
+        let currentPage = 1;  
+        let pageSize = 10;   
+        let totalPages = 0;  
+        let isSearching = false;  
 
         $(document).ready(function () {
             // Lấy danh mục sản phẩm
@@ -240,13 +239,12 @@
                 }
             });
 
-            // Sự kiện tìm kiếm
             $('#search-btn').click(function () {
                 const name = $('#search-name').val();
                 const categoryId = $('#category-select').val();
-                isSearching = true; // Đánh dấu là đang tìm kiếm
-                currentPage = 1; // Bắt đầu từ trang đầu tiên khi tìm kiếm
-                loadProducts(name, categoryId, currentPage);  // Gọi hàm load sản phẩm với tham số tìm kiếm
+                isSearching = true;
+                currentPage = 1; 
+                loadProducts(name, categoryId, currentPage); 
             });
 
             // Hàm tải sản phẩm
@@ -256,17 +254,15 @@
                     : { page: page, pageSize: pageSize };
 
                 $.ajax({
-                    url: `${API_URL}/search`, // API dùng cho tìm kiếm
+                    url: `${API_URL}/search`, 
                     type: 'GET',
                     data: params,
                     success: function (response) {
                         const products = response.products;
-                        totalPages = response.totalPages; // Cập nhật tổng số trang
+                        totalPages = response.totalPages; 
 
-                        // Xóa dữ liệu cũ trong bảng
                         $('#product-table').empty();
 
-                        // Hiển thị sản phẩm
                         if (products.length > 0) {
                             products.forEach(product => {
                                 $('#product-table').append(`
@@ -291,7 +287,6 @@
                             `);
                         }
 
-                        // Cập nhật phân trang
                         updatePagination(totalPages);
                     },
                     error: function () {
@@ -300,19 +295,16 @@
                 });
             }
 
-            // Hàm cập nhật các nút phân trang
             function updatePagination(totalPages) {
                 $('#pagination-links').find('.page-item').not('#previous-page, #next-page').remove();
 
-                const maxVisiblePages = 5; // Số nút phân trang tối đa hiển thị
+                const maxVisiblePages = 5; 
                 let startPage, endPage;
 
-                // Nếu số trang nhỏ hơn hoặc bằng số nút tối đa, hiển thị tất cả
                 if (totalPages <= maxVisiblePages) {
                     startPage = 1;
                     endPage = totalPages;
                 } else {
-                    // Xác định phạm vi hiển thị
                     startPage = Math.max(currentPage - Math.floor(maxVisiblePages / 2), 1);
                     endPage = Math.min(startPage + maxVisiblePages - 1, totalPages);
 
@@ -321,7 +313,6 @@
                     }
                 }
 
-                // Thêm nút đầu tiên và dấu ...
                 if (startPage > 1) {
                     $('#next-page').before(`
                         <li class="page-item">
@@ -337,7 +328,6 @@
                     }
                 }
 
-                // Thêm các nút phân trang trong khoảng startPage - endPage
                 for (let i = startPage; i <= endPage; i++) {
                     const isActive = i === currentPage ? 'active' : '';
                     $('#next-page').before(`
@@ -347,7 +337,6 @@
                     `);
                 }
 
-                // Thêm dấu ... và nút cuối cùng
                 if (endPage < totalPages) {
                     if (endPage < totalPages - 1) {
                         $('#next-page').before(`
@@ -363,55 +352,46 @@
                     `);
                 }
 
-                // Cập nhật trạng thái của nút "Previous" và "Next"
                 $('#previous-page').toggleClass('disabled', currentPage === 1);
                 $('#next-page').toggleClass('disabled', currentPage === totalPages);
             }
 
-            // Xử lý sự kiện khi người dùng nhấn vào nút phân trang
             $(document).on('click', '.page-link', function (e) {
                 e.preventDefault();
 
-                const name = $('#search-name').val(); // Lấy giá trị tìm kiếm
-                const categoryId = $('#category-select').val(); // Lấy giá trị danh mục
+                const name = $('#search-name').val(); 
+                const categoryId = $('#category-select').val(); 
 
-                const page = $(this).data('page'); // Lấy số trang từ data-page
+                const page = $(this).data('page'); 
                 const isPrevious = $(this).parent().attr('id') === 'previous-page';
                 const isNext = $(this).parent().attr('id') === 'next-page';
 
-                // Nhấn vào số trang cụ thể
                 if (page && page !== currentPage) {
                     currentPage = page;
                     loadProducts(name, categoryId, currentPage);
                 }
-                // Nhấn vào nút Previous
                 else if (isPrevious && currentPage > 1) {
                     currentPage--;
                     loadProducts(name, categoryId, currentPage);
                 }
-                // Nhấn vào nút Next
                 else if (isNext && currentPage < totalPages) {
                     currentPage++;
                     loadProducts(name, categoryId, currentPage);
                 }
             });
 
-
-            // Khởi chạy khi tải trang
             loadProducts('', '', currentPage);
         });
 
 
 
-        // Hàm kiểm tra nếu tên sản phẩm bị trùng
         function isProductNameValid(name) {
             let isValid = true;
-
             $.ajax({
                 url: `${API_URL}/check-name?name=${name}`,
                 type: 'GET',
                 success: function (response) {
-                    isValid = response;  // Nếu API trả về true thì tên hợp lệ
+                    isValid = response; 
                     if (!isValid) {
                         alert("Tên sản phẩm đã tồn tại.");
                     }
@@ -424,13 +404,11 @@
             return isValid;
         }
 
-        // Hàm kiểm tra định dạng ngày
         function isDateValid(date) {
             const regex = /^\d{4}-\d{2}-\d{2}$/;
             return regex.test(date);
         }
 
-        // Xử lý form thêm sản phẩm
         $('#add-product-form').submit(function (event) {
             event.preventDefault();
 
@@ -461,7 +439,6 @@
                 createdDate: createdDate
             };
 
-            // Thêm mới sản phẩm
             $.ajax({
                 url: API_URL,
                 type: 'POST',
@@ -479,11 +456,10 @@
             });
         });
 
-        // Xử lý form chỉnh sửa sản phẩm
         $('#product-form').submit(function (event) {
             event.preventDefault();
 
-            const id = $('#product-id').val();  // Lấy ID sản phẩm
+            const id = $('#product-id').val(); 
             const name = $('#edit-name').val();
             const price = $('#edit-price').val();
             const categoryProductId = $('#category-select-edit').val();
@@ -512,7 +488,6 @@
                 createdDate: createdDate
             };
 
-            // Cập nhật sản phẩm
             $.ajax({
                 url: `${API_URL}/${id}`,
                 type: 'PUT',
@@ -530,7 +505,6 @@
             });
         });
 
-        // Hàm chỉnh sửa thông tin sản phẩm
         window.editProduct = function (id) {
             $.ajax({
                 url: `${API_URL}/${id}`,
@@ -551,8 +525,6 @@
             });
         };
 
-
-        // Delete product
         window.deleteProduct = function (id) {
             if (confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
                 $.ajax({
@@ -560,7 +532,7 @@
                     type: 'DELETE',
                     success: function () {
                         alert("Xóa thành công.");
-                        loadProducts('', '', currentPage); // Load lại danh sách sản phẩm
+                        loadProducts('', '', currentPage);
                     },
                     error: function () {
                         alert("Xóa thất bại.");
@@ -569,7 +541,6 @@
             }
         };
 
-        // Reset form
         function resetForm() {
             $('#product-id').val('');
             $('#edit-name').val('');
